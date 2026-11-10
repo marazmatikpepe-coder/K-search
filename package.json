@@ -1,0 +1,21 @@
+{
+  "name": "glass-browser",
+  "version": "1.0.0",
+  "description": "Лёгкий браузер с жидким стеклом и K-search",
+  "author": "K",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win portable"
+  },
+  "build": {
+    "appId": "com.k.glassbrowser",
+    "productName": "GlassBrowser",
+    "files": ["main.js", "preload.js", "index.html", "search.html"],
+    "win": { "target": "portable" }
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  }
+}

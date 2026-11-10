@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>K-search</title>
+<style>
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{font:15px system-ui,"Segoe UI Variable","SF Pro Display",sans-serif;color:#fff;display:grid;place-items:center;
+ background:radial-gradient(circle at 20% 20%,#7b2ff7,transparent 55%),radial-gradient(circle at 80% 30%,#ff6a3d,transparent 50%),radial-gradient(circle at 50% 90%,#00c6ff,transparent 55%),#0b0b12}
+.g{background:linear-gradient(135deg,rgba(255,255,255,.26),rgba(255,255,255,.07) 45%,rgba(255,255,255,.14));
+ backdrop-filter:blur(26px) saturate(1.9);-webkit-backdrop-filter:blur(26px) saturate(1.9);border:1px solid rgba(255,255,255,.24);
+ box-shadow:inset 0 1.5px 0 rgba(255,255,255,.6),inset 0 -1px 0 rgba(255,255,255,.15),0 12px 36px rgba(0,0,0,.3)}
+main{width:min(680px,92vw);text-align:center;animation:in .5s cubic-bezier(.2,.9,.3,1.15)}
+h1{font-size:clamp(44px,9vw,76px);letter-spacing:-2px;font-weight:700;margin-bottom:22px}
+h1 b{color:#cfe4ff}
+form{display:flex;gap:8px;padding:8px;border-radius:30px}
+input{flex:1;height:48px;border:0;border-radius:24px;background:rgba(0,0,0,.25);color:#fff;font:inherit;font-size:17px;padding:0 20px;outline:0}
+input::placeholder{color:rgba(255,255,255,.6)}
+input:focus{box-shadow:0 0 0 2px #fff6}
+button.go{width:48px;height:48px;border:0;border-radius:50%;background:#fff;color:#222;cursor:pointer;font-size:20px;transition:transform .15s}
+button.go:active{transform:scale(.9)}
+.chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.chips button{border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.1);color:#fff;font:inherit;padding:8px 16px;border-radius:20px;cursor:pointer;transition:background .2s,transform .15s}
+.chips button:hover{background:rgba(255,255,255,.22)}
+.chips button.on{background:#fff;color:#111;transform:scale(1.04)}
+.sub{margin-top:22px;opacity:.7;font-size:13px}
+@keyframes in{from{opacity:0;transform:translateY(14px) scale(.96)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <h1>K<b>-search</b></h1>
+  <form id="f" class="g">
+    <input id="q" placeholder="Найти что угодно в интернете" autofocus autocomplete="off">
+    <button class="go" title="Искать">➜</button>
+  </form>
+  <div class="chips" id="types"></div>
+  <div class="chips" id="engs"></div>
+  <p class="sub">K-search ищет через выбранную систему. Название сайта, ссылка или запрос подойдут.</p>
+</main>
+<script>
+const E={
+ google:{n:'Google',web:'https://www.google.com/search?q=',img:'https://www.google.com/search?tbm=isch&q=',vid:'https://www.google.com/search?tbm=vid&q=',news:'https://www.google.com/search?tbm=nws&q=',map:'https://www.google.com/maps/search/'},
+ bing:{n:'Bing',web:'https://www.bing.com/search?q=',img:'https://www.bing.com/images/search?q=',vid:'https://www.bing.com/videos/search?q=',news:'https://www.bing.com/news/search?q=',map:'https://www.bing.com/maps?q='},
+ ddg:{n:'DuckDuckGo',web:'https://duckduckgo.com/?q=',img:'https://duckduckgo.com/?iax=images&ia=images&q=',vid:'https://duckduckgo.com/?iax=videos&ia=videos&q=',news:'https://duckduckgo.com/?iar=news&ia=news&q=',map:'https://duckduckgo.com/?iaxm=maps&ia=maps&q='},
+ yandex:{n:'Яндекс',web:'https://yandex.com/search/?text=',img:'https://yandex.com/images/search?text=',vid:'https://yandex.com/video/search?text=',news:'https://newssearch.yandex.com/yandsearch?text=',map:'https://yandex.com/maps/?text='},
+ brave:{n:'Brave',web:'https://search.brave.com/search?q=',img:'https://search.brave.com/images?q=',vid:'https://search.brave.com/videos?q=',news:'https://search.brave.com/news?q=',map:'https://search.brave.com/search?q='}
+};
+const T={web:'Поиск',img:'Картинки',vid:'Видео',news:'Новости',map:'Карты'};
+const h=(location.hash.match(/e=(\w+)/)||[])[1];
+let eng=localStorage.eng||(E[h]?h:'google'), type=localStorage.type||'web';
+function chips(box,obj,cur,set,label){box.textContent='';
+ for(const k in obj){const b=document.createElement('button');b.type='button';b.textContent=label(k);
+  if(k===cur)b.className='on';b.onclick=()=>{set(k);render()};box.append(b)}}
+function render(){
+ chips(document.getElementById('types'),T,type,k=>{type=k;localStorage.type=k},k=>T[k]);
+ chips(document.getElementById('engs'),E,eng,k=>{eng=k;localStorage.eng=k},k=>E[k].n);
+}
+render();
+document.getElementById('f').onsubmit=e=>{
+ e.preventDefault();let q=document.getElementById('q').value.trim();if(!q)return;
+ if(/^[a-z]+:\/\//i.test(q))return location.href=q;
+ if(/^(localhost|[\w-]+(\.[\w-]+)+)(:\d+)?(\/.*)?$/i.test(q)&&!/\s/.test(q))return location.href='https://'+q;
+ location.href=E[eng][type]+encodeURIComponent(q);
+};
+</script>
+</body>
+</html>
