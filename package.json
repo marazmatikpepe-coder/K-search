@@ -1,18 +1,28 @@
 {
-  "name": "glass-browser",
-  "version": "1.0.0",
-  "description": "Лёгкий браузер с жидким стеклом и K-search",
-  "author": "K",
+  "name": "k-search-browser",
+  "version": "2.0.0",
+  "description": "K-search — лёгкий браузер",
+  "author": "K-search",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --win portable"
+    "build": "electron-builder --win portable",
+    "build:setup": "electron-builder --win nsis"
   },
   "build": {
-    "appId": "com.k.glassbrowser",
-    "productName": "GlassBrowser",
-    "files": ["main.js", "preload.js", "index.html", "search.html"],
-    "win": { "target": "portable" }
+    "appId": "com.ksearch.browser",
+    "productName": "K-search",
+    "files": ["main.js", "preload.js", "tab-preload.js", "index.html", "ui.js", "search.html", "settings.html", "theme.js", "glass.css", "logo.png", "icon.png"],
+    "win": { "icon": "build/icon.ico", "target": "nsis" },
+    "portable": { "artifactName": "K-search-portable.exe" },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "include": "build/installer.nsh",
+      "artifactName": "K-search-Setup.exe"
+    }
   },
   "devDependencies": {
     "electron": "^33.0.0",

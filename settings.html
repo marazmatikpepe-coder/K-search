@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><title>Настройки</title>
+<link rel="stylesheet" href="glass.css">
+<style>
+body{display:flex;overflow:hidden}
+nav{width:230px;padding:22px 12px;display:flex;flex-direction:column;gap:3px;background:rgba(var(--shade),.2);flex:none}
+nav h2{display:flex;align-items:center;gap:10px;font-size:18px;padding:0 10px 16px}nav h2 img{width:28px}
+nav a{padding:9px 12px;border-radius:calc(var(--r) - 4px);cursor:pointer;color:var(--fg2);transition:background .15s}
+nav a:hover{background:rgba(var(--tint),.1)}nav a.on{background:rgba(var(--tint),.2);color:var(--fg)}
+section{flex:1;overflow:auto;padding:28px 36px 60px}
+.card{max-width:640px;padding:6px 20px;border-radius:calc(var(--r) + 6px);margin-bottom:18px}
+h3{font-size:20px;margin:0 0 16px;max-width:640px}h4{font-weight:600;padding:14px 0 2px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08)}.row:last-child{border:0}
+.row small{display:block;color:var(--fg2);margin-top:2px}
+button,select,input[type=text]{font:inherit;color:var(--fg);background:rgba(var(--shade),.28);border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:6px 12px;cursor:pointer}
+input[type=text]{cursor:text;user-select:text;min-width:150px}
+button.p{background:var(--c1);border:0;color:#fff}button:hover{filter:brightness(1.15)}
+input[type=range]{accent-color:var(--c1);width:190px}input[type=color]{width:42px;height:30px;border:0;background:none;padding:0;cursor:pointer}
+.seg{display:flex;gap:4px}.seg button.on{background:var(--c1);border-color:var(--c1);color:#fff}
+.sw{display:flex;gap:12px;flex-wrap:wrap;padding:8px 0 14px}
+.sw div{text-align:center;cursor:pointer;font-size:12px;color:var(--fg2)}.sw i{display:block;width:44px;height:44px;border-radius:50%;margin:0 auto 5px;border:2px solid transparent;transition:transform .15s}
+.sw div:hover i{transform:scale(1.1)}.sw .on i{border-color:var(--fg)}
+.tg{width:44px;height:24px;border-radius:12px;background:rgba(var(--tint),.25);position:relative;cursor:pointer;flex:none;transition:background .2s}
+.tg::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .22s}
+.tg.on{background:var(--c1)}.tg.on::after{transform:translateX(20px)}
+.bar{height:6px;border-radius:3px;background:rgba(var(--tint),.2);width:120px;overflow:hidden}.bar i{display:block;height:100%;background:var(--c1)}
+.mut{color:var(--fg2)}.ell{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:300px}
+section{-webkit-user-select:text;user-select:text}
+</style></head><body>
+<nav id="nav"></nav><section id="main"></section>
+<script src="theme.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const h=(t,p,...k)=>{const e=document.createElement(t);for(const a in p||{})a in e&&a!=='style'?e[a]=p[a]:e.setAttribute(a,p[a]);k.flat().forEach(x=>e.append(x&&x.nodeType?x:document.createTextNode(x==null?'':x)));return e};
+const DEFORDER=['back','fwd','reload','home','addr','pin','lock','prof','menu'];
+const SEC=[['look','Внешний вид'],['ui','Интерфейс'],['perf','Производительность'],['profiles','Профили'],['pw','Пароли'],['downloads','Загрузки'],['search','Поиск'],['def','Браузер по умолчанию']];
+let S=null,sec=(location.hash||'#look').slice(1),own=0,dls=[];
+const set=p=>{own=Date.now();S=Object.assign({},S,p,{theme:Object.assign({},S.theme,p.theme||{}),layout:Object.assign({},S.layout,p.layout||{})});applyTheme(S);ks.send('settings:set',p)};
+const thr=(f,ms=60)=>{let t=0,a;return(...x)=>{a=x;if(t)return;t=setTimeout(()=>{t=0;f(...a)},ms)}};
+const row=(l,c,sub)=>h('div',{className:'row'},h('div',{},l,sub?h('small',{},sub):''),c);
+const tog=(v,f)=>{const t=h('div',{className:'tg'+(v?' on':'')});t.onclick=()=>{v=!v;t.classList.toggle('on',v);f(v)};return t};
+const seg=(opts,v,f)=>{const d=h('div',{className:'seg'});opts.forEach(([k,l])=>{const b=h('button',{className:k===v?'on':'',textContent:l});b.onclick=()=>{[...d.children].forEach(c=>c.classList.remove('on'));b.classList.add('on');f(k)};d.append(b)});return d};
+const range=(min,max,step,v,f)=>{const r=h('input',{type:'range',min,max,step,value:v});r.oninput=thr(()=>f(+r.value));return r};
+const card=(...k)=>h('div',{className:'card glass'},k);
+const SECS={
+look(){const t=S.theme,c=t.c;
+ return[h('h3',{},'Внешний вид'),card(
+  row('Режим',seg([['dark','Тёмный'],['light','Светлый'],['auto','Авто']],t.mode,k=>set({theme:{mode:k}}))),
+  h('h4',{},'Готовые цвета'),
+  h('div',{className:'sw'},Object.keys(PRESETS).map(k=>{const d=h('div',{className:t.preset===k?'on':''},h('i',{style:`background:linear-gradient(135deg,${PRESETS[k].join(',')})`}),PNAMES[k]);
+   d.onclick=()=>{set({theme:{preset:k,c:PRESETS[k].slice()}});draw()};return d})),
+  h('h4',{},'Свой микс'),
+  row('Три цвета градиента',h('div',{style:'display:flex;gap:6px'},[0,1,2].map(i=>{const x=h('input',{type:'color',value:c[i]});x.oninput=thr(()=>{const n=S.theme.c.slice();n[i]=x.value;set({theme:{preset:'custom',c:n}})});return x}))),
+  row('Угол градиента',range(0,360,5,t.angle,v=>set({theme:{preset:'custom',angle:v}}))),
+  row('Прозрачность стекла',range(.04,.5,.01,t.glass,v=>set({theme:{glass:v}}))),
+  row('Размытие',range(0,40,1,t.blur,v=>set({theme:{blur:v}}))),
+  row('Скругление',range(6,28,1,S.radius,v=>set({radius:v}))),
+  row('Шрифт',(()=>{const s=h('select',{},[['','Системный'],['Georgia,serif','Georgia'],['"Trebuchet MS",sans-serif','Trebuchet'],['Consolas,monospace','Consolas']].map(([v,l])=>h('option',{value:v,textContent:l})));s.value=S.font||'';s.onchange=()=>set({font:s.value});return s})())),
+  h('h3',{},'Мои темы'),card(
+   row('Сохранить текущую',h('div',{style:'display:flex;gap:6px'},(()=>{const i=h('input',{type:'text',placeholder:'Название'});const b=h('button',{className:'p',textContent:'Сохранить'});b.onclick=()=>{if(!i.value.trim())return;set({saved:[...S.saved,{name:i.value.trim(),theme:S.theme}]});draw()};return[i,b]})())),
+   S.saved.map((s,i)=>row(s.name,h('div',{style:'display:flex;gap:6px'},(()=>{const a=h('button',{textContent:'Применить'}),d=h('button',{textContent:'Удалить'});a.onclick=()=>{set({theme:s.theme});draw()};d.onclick=()=>{set({saved:S.saved.filter((_,j)=>j!==i)});draw()};return[a,d]})()))),
+   row('Перенос между устройствами',h('div',{style:'display:flex;gap:6px'},(()=>{const e=h('button',{textContent:'Экспорт'}),m=h('button',{textContent:'Импорт'});e.onclick=()=>ks.invoke('theme:export',S.theme);m.onclick=async()=>{const t=await ks.invoke('theme:import');if(t&&t.c){set({theme:t});draw()}};return[e,m]})()),'Тему можно сохранить в файл и загрузить на другом компьютере'),
+   row('Текст на экране блокировки',(()=>{const i=h('input',{type:'text',value:S.lockText||''});i.oninput=thr(()=>set({lockText:i.value}),300);return i})()))]},
+ui(){const L=S.layout;return[h('h3',{},'Интерфейс'),card(
+  row('Вкладки',seg([['top','Сверху'],['left','Слева']],L.tabs,k=>set({layout:{tabs:k}}))),
+  row('Панель адреса',seg([['top','Сверху'],['bottom','Снизу']],L.bar,k=>set({layout:{bar:k}}))),
+  row('Режим редактора',h('button',{className:'p',textContent:'Открыть',onclick:()=>ks.send('cmd:edit')}),'Перетаскивайте кнопки на панели, клик по кнопке прячет её'),
+  row('Сбросить раскладку',h('button',{textContent:'Сбросить',onclick:()=>{set({layout:{tabs:'top',bar:'top',order:DEFORDER,hidden:[]}});draw()}})))]},
+perf(){const m=h('span',{className:'mut',textContent:'…'}),bar=h('div',{className:'bar'},h('i',{}));
+ const upd=async()=>{const r=await ks.invoke('mem');if(!r||!m.isConnected)return;m.textContent=`${r.mb} МБ · активно ${r.live} из ${r.total}`;bar.firstChild.style.width=Math.min(100,r.mb/S.ram*100)+'%'};upd();setTimeout(function f(){if(!m.isConnected)return;upd();setTimeout(f,3000)},3000);
+ const rv=h('span',{className:'mut',textContent:S.ram+' МБ'});
+ return[h('h3',{},'Производительность'),card(
+  row('Сейчас использует',h('div',{style:'text-align:right'},m,bar)),
+  row('Лимит ОЗУ',h('div',{style:'display:flex;gap:10px;align-items:center'},range(200,700,50,S.ram,v=>{rv.textContent=v+' МБ';set({ram:v})}),rv),'При превышении неактивные вкладки засыпают. Лимит кучи JS применяется после перезапуска'),
+  row('Усыплять вкладки через',(()=>{const s=h('select',{},[[0,'Никогда'],[5,'5 мин'],[10,'10 мин'],[30,'30 мин'],[60,'1 час']].map(([v,l])=>h('option',{value:v,textContent:l})));s.value=S.sleepMin;s.onchange=()=>set({sleepMin:+s.value});return s})(),'Уснувшая вкладка остаётся в панели и загружается заново по клику'),
+  row('Лёгкий режим',tog(S.lite,v=>set({lite:v})),'Без размытия стекла: меньше нагрузка на слабой видеокарте'))]},
+profiles(){const n=h('input',{type:'text',placeholder:'Название профиля'});
+ return[h('h3',{},'Профили'),card(S.profiles.map(p=>{const i=h('input',{type:'text',value:p.name});i.onchange=()=>ks.send('profile:rename',p.id,i.value);
+  const go=h('button',{className:p.id===S.profile?'p':'',textContent:p.id===S.profile?'Активен':'Выбрать',onclick:()=>ks.send('profile:switch',p.id)});
+  const kids=[go];if(p.id!=='default')kids.push(h('button',{textContent:'Удалить',onclick:()=>{if(confirm('Удалить профиль и все его данные?'))ks.send('profile:del',p.id)}}));
+  return row(i,h('div',{style:'display:flex;gap:6px'},kids))}),
+  row(n,h('button',{className:'p',textContent:'Создать',onclick:()=>{if(n.value.trim())ks.send('profile:add',n.value.trim())}})),),
+  h('p',{className:'mut',style:'max-width:640px'},'У каждого профиля свои куки, входы в аккаунты, пароли, закреплённые сайты и вкладки.')]},
+pw(){const box=card(h('p',{className:'mut',style:'padding:12px 0'},'Загрузка…'));
+ ks.invoke('pw:list').then(l=>{box.textContent='';if(!l.length)box.append(h('p',{className:'mut',style:'padding:12px 0'},'Сохранённых паролей нет. Войдите на сайт — браузер предложит сохранить пароль.'));
+  l.forEach(x=>box.append(row(h('div',{className:'ell'},new URL(x.origin).host,h('small',{},x.user||'(без имени)')),h('button',{textContent:'Удалить',onclick:async e=>{await ks.invoke('pw:del',x.origin,x.user);draw()}}))))});
+ return[h('h3',{},'Пароли'),box,h('p',{className:'mut',style:'max-width:640px'},'Пароли шифруются средствами Windows и хранятся только на этом компьютере в выбранном профиле.')]},
+downloads(){const list=h('div',{});const dr=()=>{list.textContent='';dls.forEach(d=>list.append(row(h('div',{className:'ell'},d.name,h('small',{},d.state==='run'?(d.total?Math.round(d.got/d.total*100)+'%':'загрузка…'):d.state==='ok'?'готово':'ошибка')),d.state==='ok'?h('button',{textContent:'В папке',onclick:()=>ks.send('dl:open',d.id)}):h('div',{className:'bar'},h('i',{style:'width:'+(d.total?d.got/d.total*100:30)+'%'})))));if(!dls.length)list.append(h('p',{className:'mut',style:'padding:12px 0'},'Загрузок пока нет'))};
+ ks.invoke('dl:list').then(l=>{dls=l;dr()});window.dr=dr;
+ return[h('h3',{},'Загрузки'),card(
+  row('Папка загрузок',h('div',{style:'display:flex;gap:8px;align-items:center'},h('span',{className:'mut ell'},S.downloadDir||'по умолчанию (Загрузки)'),h('button',{textContent:'Выбрать',onclick:()=>ks.invoke('dl:pick')}))),
+  row('Спрашивать, куда сохранять',tog(S.askDownload,v=>set({askDownload:v})))),h('h3',{},'Недавние'),card(list)]},
+search(){const s=h('select',{},[['google','Google'],['bing','Bing'],['ddg','DuckDuckGo'],['yandex','Яндекс'],['brave','Brave']].map(([v,l])=>h('option',{value:v,textContent:l})));s.value=S.engine;s.onchange=()=>set({engine:s.value});
+ return[h('h3',{},'Поиск'),card(row('Поисковая система в адресной строке',s,'На главной странице K-search можно выбрать любую и раздел: картинки, видео, новости, карты'))]},
+def(){return[h('h3',{},'Браузер по умолчанию'),card(
+  row('Открывать ссылки, PDF и картинки в K-search',h('button',{className:'p',textContent:'Открыть параметры Windows',onclick:()=>ks.send('sys:defaults')}),'Работает после установки через K-search-Setup.exe. В Windows выберите K-search в списке приложений и назначьте для HTTP, HTTPS, PDF, HTML'))]}
+};
+function draw(){
+ const n=$('#nav');n.textContent='';n.append(h('h2',{},h('img',{src:'logo.png'}),'Настройки'));
+ SEC.forEach(([k,l])=>n.append(h('a',{className:k===sec?'on':'',textContent:l,onclick:()=>{sec=k;history.replaceState(0,'','#'+k);draw()}})));
+ const m=$('#main');m.textContent='';m.append(...SECS[sec]());
+}
+applyTheme(null);
+ks.invoke('settings:get').then(s=>{S=s;applyTheme(s);draw()});
+ks.on('settings',s=>{const fresh=Date.now()-own>400;S=s;applyTheme(s);if(fresh)draw()});
+ks.on('dl',l=>{dls=l;if(sec==='downloads'&&window.dr)dr()});
+addEventListener('hashchange',()=>{sec=(location.hash||'#look').slice(1);if(S)draw()});
+</script></body></html>
