@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><title>Добро пожаловать</title>
+<link rel="stylesheet" href="glass.css">
+<style>
+main{height:100vh;overflow-y:auto;scroll-snap-type:y mandatory;scroll-behavior:smooth}
+main::-webkit-scrollbar{display:none}
+section{height:100vh;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 7vw;position:relative}
+section>*{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.8,.2,1),transform .7s cubic-bezier(.2,.8,.2,1)}
+section.in>*{opacity:1;transform:none}section.in>*:nth-child(2){transition-delay:.1s}section.in>*:nth-child(3){transition-delay:.2s}section.in>*:nth-child(4){transition-delay:.3s}section.in>*:nth-child(5){transition-delay:.4s}
+.orb{position:fixed;border-radius:50%;filter:blur(80px);opacity:.3;pointer-events:none;will-change:transform;transition:transform .9s cubic-bezier(.2,.8,.2,1)}
+#o1{width:50vmax;height:50vmax;background:var(--c1);left:-15vmax;top:-18vmax}#o2{width:44vmax;height:44vmax;background:var(--c2,#14a39a);right:-14vmax;bottom:-20vmax}
+h1{font-size:clamp(34px,6vw,60px);letter-spacing:-1.5px;font-weight:650;max-width:760px}h2{font-size:clamp(26px,4.4vw,42px);letter-spacing:-1px;font-weight:650;max-width:720px}
+p.sub{color:var(--fg2);font-size:clamp(15px,1.7vw,19px);margin-top:14px;max-width:560px;line-height:1.5}
+.logo{width:120px;height:120px;margin-bottom:22px;animation:float 5s ease-in-out infinite;filter:drop-shadow(0 14px 26px rgba(0,0,0,.35))}
+.down{position:absolute;bottom:5vh;color:var(--fg2);animation:bob 2s ease-in-out infinite!important;opacity:1!important;transform:none}
+.cards{display:flex;gap:16px;margin-top:34px;flex-wrap:wrap;justify-content:center}
+.c{width:230px;padding:24px 20px;border-radius:calc(var(--r) + 8px);text-align:left}.c b{display:block;font-size:17px;margin:10px 0 6px}.c span{color:var(--fg2);line-height:1.45}.c i{font-style:normal;font-size:30px}
+.sw{display:flex;gap:16px;margin-top:30px;flex-wrap:wrap;justify-content:center}.sw div{cursor:pointer;color:var(--fg2);font-size:13px}
+.sw i{display:block;width:60px;height:60px;border-radius:50%;margin:0 auto 7px;border:3px solid transparent;transition:transform .2s}.sw div:hover i{transform:scale(1.12)}.sw .on i{border-color:var(--fg)}
+.seg{display:flex;gap:6px;margin-top:22px}
+button{font:inherit;color:var(--fg);border:1px solid rgba(255,255,255,.18);background:rgba(var(--tint),.12);border-radius:16px;padding:10px 20px;cursor:pointer;transition:background .15s,transform .15s}
+button:hover{background:rgba(var(--tint),.24)}button:active{transform:scale(.96)}button.on,button.p{background:var(--c1);border-color:var(--c1);color:#fff}
+button.big{padding:14px 34px;font-size:16px;border-radius:22px;margin-top:26px}
+.opts{margin-top:26px;width:min(460px,92vw);padding:8px 20px;border-radius:calc(var(--r) + 8px);text-align:left}
+.opts label{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.08);cursor:pointer}.opts label:last-child{border:0}
+.opts input{accent-color:var(--c1);width:18px;height:18px}.opts small{display:block;color:var(--fg2)}
+.msg{margin-top:16px;min-height:22px;color:var(--fg2)}.msg.ok{color:var(--fg)}
+.dots{position:fixed;right:22px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:12px;z-index:5}
+.dots a{width:9px;height:9px;border-radius:50%;background:rgba(var(--tint),.35);cursor:pointer;transition:all .25s}.dots a.on{background:var(--c1);height:26px}
+.top{position:fixed;left:0;top:0;height:3px;background:var(--c1);width:0;z-index:6;transition:width .2s}
+.skip{position:fixed;right:24px;top:18px;z-index:6;color:var(--fg2);cursor:pointer;font-size:13px;padding:6px 12px;border-radius:14px}.skip:hover{background:rgba(var(--tint),.15)}
+.step{position:fixed;left:26px;bottom:22px;color:var(--fg2);font-size:13px;z-index:5}
+@keyframes float{50%{transform:translateY(-12px)}}@keyframes bob{50%{transform:translateY(8px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}section>*{opacity:1;transform:none}}
+</style></head><body>
+<div class="orb" id="o1"></div><div class="orb" id="o2"></div><div class="top" id="bar"></div>
+<div class="skip" id="skip">Пропустить</div><div class="step" id="step"></div><div class="dots" id="dots"></div>
+<main id="m">
+<section><img class="logo" src="logo.png" alt=""><h1>Добро пожаловать в K-search</h1><p class="sub">Лёгкий, быстрый и спокойный браузер. Настроим всё за минуту — просто листайте вниз.</p><div class="down">листайте ↓</div></section>
+<section><h2>Создан, чтобы не тормозить</h2><p class="sub">Никаких лишних процессов и перегруженного интерфейса.</p>
+ <div class="cards"><div class="c glass"><i>🍃</i><b>Экономит память</b><span>Вкладки, которые вам не нужны, засыпают сами, а вы задаёте лимит ОЗУ.</span></div>
+ <div class="c glass"><i>⚡</i><b>Мгновенный старт</b><span>Окно открывается сразу, вкладки грузятся только когда вы к ним возвращаетесь.</span></div>
+ <div class="c glass"><i>🎨</i><b>Ваш по настроению</b><span>Цвета, шрифт, расположение панелей — всё меняется под вас.</span></div></div></section>
+<section><h2>Выберите настроение</h2><p class="sub">Цвет можно поменять в любой момент, а ещё смешать свой.</p><div class="sw" id="sw"></div>
+ <div class="seg" id="seg"></div></section>
+<section id="mv"><h2>Переезд без хлопот</h2><p class="sub">Заберём пароли и закладки из старого браузера. Там ничего не удалится и не изменится.</p><div id="mvbody"></div></section>
+<section><h2>Сделайте K-search основным</h2><p class="sub">Тогда ссылки, PDF и картинки будут открываться здесь. В Windows выберите K-search в списке и назначьте для HTTP, HTTPS и PDF.</p>
+ <button class="big p" id="def">Открыть параметры Windows</button></section>
+<section><img class="logo" src="logo.png" alt="" style="width:90px;height:90px"><h1>Всё готово</h1><p class="sub">Приятного серфинга! Настройки всегда под рукой: меню → Настройки.</p><button class="big p" id="fin">Начать</button></section>
+</main>
+<script src="theme.js"></script>
+<script>
+const $=s=>document.querySelector(s),h=(t,p,...k)=>{const e=document.createElement(t);Object.assign(e,p||{});e.append(...k);return e};
+let S=null;const m=$('#m'),secs=[...document.querySelectorAll('section')];
+const set=p=>{S=Object.assign({},S,p,{theme:Object.assign({},S.theme,p.theme||{})});applyTheme(S);ks.send('settings:set',p);style()};
+function style(){document.querySelectorAll('.sw div').forEach(d=>d.classList.toggle('on',d.dataset.k===S.theme.preset));document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('on',b.dataset.k===S.theme.mode))}
+Object.keys(PRESETS).forEach(k=>{const d=h('div',{},h('i',{style:'background:linear-gradient(135deg,'+PRESETS[k].join(',')+')'}),PNAMES[k]);d.dataset.k=k;d.onclick=()=>set({theme:{preset:k,c:PRESETS[k].slice()}});$('#sw').append(d)});
+[['dark','Тёмный'],['light','Светлый'],['auto','Авто']].forEach(([k,l])=>{const b=h('button',{textContent:l});b.dataset.k=k;b.onclick=()=>set({theme:{mode:k}});$('#seg').append(b)});
+secs.forEach((s,i)=>{const a=h('a');a.onclick=()=>s.scrollIntoView({behavior:'smooth'});$('#dots').append(a)});
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');const i=secs.indexOf(e.target);[...$('#dots').children].forEach((d,j)=>d.classList.toggle('on',i===j));
+ $('#step').textContent=i>0&&i<secs.length-1?'Шаг '+i+' из '+(secs.length-2):'';$('#bar').style.width=(i/(secs.length-1)*100)+'%'}}),{root:m,threshold:.55});
+secs.forEach(s=>io.observe(s));
+m.addEventListener('scroll',()=>{const p=m.scrollTop/m.clientHeight;$('#o1').style.transform=`translate(${p*40}px,${p*70}px)`;$('#o2').style.transform=`translate(${-p*50}px,${-p*60}px)`},{passive:true});
+async function done(){ks.send('settings:set',{onboarded:true});location.href='search.html'}
+$('#skip').onclick=$('#fin').onclick=done;$('#def').onclick=()=>ks.send('sys:defaults');
+/* перенос */
+ks.invoke('import:detect').then(list=>{const b=$('#mvbody');
+ if(!list.length){b.append(h('p',{className:'sub',textContent:'Других браузеров не нашли — это нормально, начнём с чистого листа.'}));return}
+ let cur=list[0].id;const names=h('div',{className:'seg',style:'justify-content:center;flex-wrap:wrap'});
+ list.forEach(x=>{const bt=h('button',{textContent:x.name,className:x.id===cur?'on':'',onclick:()=>{cur=x.id;[...names.children].forEach(c=>c.classList.toggle('on',c.textContent===x.name))}});names.append(bt)});
+ const pw=h('input',{type:'checkbox',checked:true}),bm=h('input',{type:'checkbox',checked:true});
+ const opts=h('div',{className:'opts glass'},h('label',{},pw,h('div',{},'Пароли',h('small',{textContent:'Хранятся зашифрованно только на этом компьютере'}))),h('label',{},bm,h('div',{},'Закладки',h('small',{textContent:'Появятся плитками на главной'}))));
+ const msg=h('div',{className:'msg'}),go=h('button',{className:'big p',textContent:'Перенести'});
+ go.onclick=async()=>{go.disabled=true;go.textContent='Переношу…';msg.className='msg';msg.textContent='Это займёт несколько секунд';
+  const r=await ks.invoke('import:run',cur,{passwords:pw.checked,bookmarks:bm.checked});go.disabled=false;go.textContent='Перенести ещё раз';
+  if(!r){msg.textContent='Не получилось';return}
+  const parts=[];if(r.pw)parts.push(r.pw+' паролей');if(r.bm)parts.push(r.bm+' закладок');
+  if(r.err==='busy')msg.textContent='Закройте этот браузер и нажмите ещё раз — Windows не даёт прочитать данные, пока он открыт';
+  else if(r.err)msg.textContent='Не удалось прочитать пароли. Закладки можно перенести отдельно';
+  else{msg.className='msg ok';msg.textContent=parts.length?'Готово: перенесено '+parts.join(' и ')+(r.skipped?'. Часть паролей новые версии браузера защищают так, что их не прочитать':''):'Новых данных не нашлось'}};
+ b.append(names,opts,msg,go)});
+ks.invoke('settings:get').then(s=>{S=s;applyTheme(s);style()});
+</script></body></html>

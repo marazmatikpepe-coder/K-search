@@ -1,13 +1,15 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer, webUtils } = require('electron');
 const base = (process.argv.find(a => a.startsWith('--app-url=')) || '').slice(10);
 const here = () => location.href;
 // Внутренние страницы (главная, настройки): ограниченный API
 if (base && here().startsWith(base)) {
   const OK = new Set(['settings:get', 'settings:set', 'profile:add', 'profile:del', 'profile:rename', 'profile:switch', 'pw:list', 'pw:del',
-    'dl:list', 'dl:pick', 'dl:open', 'mem', 'pins:del', 'cmd:edit', 'sys:defaults', 'theme:export', 'theme:import']);
+    'dl:list', 'dl:pick', 'dl:open', 'mem', 'pins:del', 'cmd:edit', 'sys:defaults', 'theme:export', 'theme:import',
+    'file:info', 'file:open', 'file:show', 'file:openpath', 'file:dialog', 'keys:has', 'keys:set', 'voice:song', 'voice:text', 'import:detect', 'import:run']);
   contextBridge.exposeInMainWorld('ks', {
     invoke: (c, ...a) => OK.has(c) ? ipcRenderer.invoke(c, ...a) : Promise.reject(new Error('denied')),
     send: (c, ...a) => { if (OK.has(c)) ipcRenderer.send(c, ...a); },
+    pathOf: f => { try { return webUtils.getPathForFile(f); } catch { return ''; } },
     on: (c, f) => { if (c === 'settings' || c === 'dl') ipcRenderer.on(c, (_, d) => f(d)); }
   });
 }
@@ -22,6 +24,7 @@ if (/^https?:$/.test(location.protocol)) {
     Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(el, v);
     el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true }));
   };
+  addEventListener('load', () => { const l = document.querySelector('link[rel=manifest]'); if (l && l.href) ipcRenderer.send('pwa', l.href); });
   addEventListener('submit', e => {
     const f = e.target, p = f && f.querySelector && f.querySelector('input[type=password]');
     if (p && p.value) { const u = userField(p, f); ipcRenderer.send('pw:save', { user: u ? u.value : '', pass: p.value }); }

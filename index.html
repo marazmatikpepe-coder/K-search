@@ -15,6 +15,11 @@ body.mac #top{padding-left:80px}
 .tab img{width:15px;height:15px;border-radius:4px;flex:none}
 .tab span{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .tab.zz span{opacity:.55;font-style:italic}.tab.ld img{animation:spin 1s linear infinite}
+.au{font-size:12px;font-weight:400;cursor:pointer;flex:none}
+.tab.drag{opacity:.75;box-shadow:0 4px 14px rgba(0,0,0,.35);z-index:3}
+.tab.sp{box-shadow:inset 0 -2px 0 var(--c1)}
+#fi{flex:1;max-width:340px;height:24px;border:0;border-radius:10px;background:rgba(var(--shade),.3);color:var(--fg);padding:0 10px;font:inherit;outline:0;user-select:text}
+#fc{color:var(--fg2);min-width:90px}
 .x{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;opacity:0;flex:none}
 .tab:hover .x,.tab.on .x{opacity:.7}.x:hover{background:rgba(var(--tint),.25);opacity:1!important}
 #plus{-webkit-app-region:no-drag;flex:none}
@@ -28,8 +33,13 @@ body.bb #bar{top:auto;bottom:4px}
 .b.on svg{fill:var(--c1);stroke:var(--c1)}
 .prof{font-weight:700;font-size:13px;background:var(--c1);color:#fff}
 svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-#addr{-webkit-app-region:no-drag;flex:1;min-width:80px;height:34px;border:1px solid rgba(255,255,255,.12);border-radius:calc(var(--r) + 2px);background:rgba(var(--shade),.25);color:var(--fg);padding:0 14px;font:inherit;outline:0;user-select:text}
+#addrw{-webkit-app-region:no-drag;position:relative;flex:1;min-width:120px;display:flex;align-items:center}
+#addr{-webkit-app-region:no-drag;width:100%;height:34px;padding-right:100px!important;border:1px solid rgba(255,255,255,.12);border-radius:calc(var(--r) + 2px);background:rgba(var(--shade),.25);color:var(--fg);padding:0 14px;font:inherit;outline:0;user-select:text}
 #addr:focus{box-shadow:0 0 0 2px var(--c1)}
+.abs{position:absolute;right:4px;display:flex;gap:1px}
+.ab{width:28px;height:28px;border:0;border-radius:50%;background:none;display:grid;place-items:center;cursor:pointer;color:var(--fg2);transition:background .15s,color .15s}
+.ab:hover{background:rgba(var(--tint),.2);color:var(--fg)}.ab svg{width:16px;height:16px}.ab.on{color:var(--c1)}.ab.on svg{fill:var(--c1)}
+.ab.inst{color:var(--c1)}
 #info{position:fixed;left:8px;right:8px;top:96px;height:32px;display:none;align-items:center;gap:10px;padding:0 6px 0 14px;border-radius:var(--r);animation:pop .2s ease-out}
 body.bb #info{top:44px}
 #info.show{display:flex}#info p{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}

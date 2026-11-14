@@ -1,6 +1,6 @@
 {
   "name": "k-search-browser",
-  "version": "2.0.0",
+  "version": "2.2.0",
   "description": "K-search — лёгкий браузер",
   "author": "K-search",
   "main": "main.js",
@@ -12,9 +12,29 @@
   "build": {
     "appId": "com.ksearch.browser",
     "productName": "K-search",
-    "files": ["main.js", "preload.js", "tab-preload.js", "index.html", "ui.js", "search.html", "settings.html", "theme.js", "glass.css", "logo.png", "icon.png"],
-    "win": { "icon": "build/icon.ico", "target": "nsis" },
-    "portable": { "artifactName": "K-search-portable.exe" },
+    "files": [
+      "main.js",
+      "preload.js",
+      "tab-preload.js",
+      "importer.js",
+      "index.html",
+      "ui.js",
+      "search.html",
+      "settings.html",
+      "welcome.html",
+      "viewer.html",
+      "theme.js",
+      "glass.css",
+      "logo.png",
+      "icon.png"
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": "nsis"
+    },
+    "portable": {
+      "artifactName": "K-search-portable.exe"
+    },
     "nsis": {
       "oneClick": false,
       "perMachine": false,
@@ -27,5 +47,8 @@
   "devDependencies": {
     "electron": "^33.0.0",
     "electron-builder": "^25.0.0"
+  },
+  "dependencies": {
+    "sql.js": "^1.12.0"
   }
 }

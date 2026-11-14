@@ -32,8 +32,8 @@ section{-webkit-user-select:text;user-select:text}
 <script>
 const $=s=>document.querySelector(s);
 const h=(t,p,...k)=>{const e=document.createElement(t);for(const a in p||{})a in e&&a!=='style'?e[a]=p[a]:e.setAttribute(a,p[a]);k.flat().forEach(x=>e.append(x&&x.nodeType?x:document.createTextNode(x==null?'':x)));return e};
-const DEFORDER=['back','fwd','reload','home','addr','pin','lock','prof','menu'];
-const SEC=[['look','Внешний вид'],['ui','Интерфейс'],['perf','Производительность'],['profiles','Профили'],['pw','Пароли'],['downloads','Загрузки'],['search','Поиск'],['def','Браузер по умолчанию']];
+const DEFORDER=['back','fwd','reload','home','addr','prof','menu'];
+const SEC=[['look','Внешний вид'],['ui','Интерфейс'],['perf','Производительность'],['profiles','Профили'],['pw','Пароли'],['downloads','Загрузки'],['search','Поиск'],['voice','Голос и музыка'],['def','Браузер по умолчанию']];
 let S=null,sec=(location.hash||'#look').slice(1),own=0,dls=[];
 const set=p=>{own=Date.now();S=Object.assign({},S,p,{theme:Object.assign({},S.theme,p.theme||{}),layout:Object.assign({},S.layout,p.layout||{})});applyTheme(S);ks.send('settings:set',p)};
 const thr=(f,ms=60)=>{let t=0,a;return(...x)=>{a=x;if(t)return;t=setTimeout(()=>{t=0;f(...a)},ms)}};
@@ -66,13 +66,14 @@ ui(){const L=S.layout;return[h('h3',{},'Интерфейс'),card(
   row('Панель адреса',seg([['top','Сверху'],['bottom','Снизу']],L.bar,k=>set({layout:{bar:k}}))),
   row('Режим редактора',h('button',{className:'p',textContent:'Открыть',onclick:()=>ks.send('cmd:edit')}),'Перетаскивайте кнопки на панели, клик по кнопке прячет её'),
   row('Сбросить раскладку',h('button',{textContent:'Сбросить',onclick:()=>{set({layout:{tabs:'top',bar:'top',order:DEFORDER,hidden:[]}});draw()}})))]},
-perf(){const m=h('span',{className:'mut',textContent:'…'}),bar=h('div',{className:'bar'},h('i',{}));
- const upd=async()=>{const r=await ks.invoke('mem');if(!r||!m.isConnected)return;m.textContent=`${r.mb} МБ · активно ${r.live} из ${r.total}`;bar.firstChild.style.width=Math.min(100,r.mb/S.ram*100)+'%'};upd();setTimeout(function f(){if(!m.isConnected)return;upd();setTimeout(f,3000)},3000);
- const rv=h('span',{className:'mut',textContent:S.ram+' МБ'});
+perf(){const m=h('span',{className:'mut',textContent:'…'}),bar=h('div',{className:'bar'},h('i',{})),inf=h('small',{});
+ const upd=async()=>{const r=await ks.invoke('mem');if(!r||!m.isConnected)return;m.textContent=`${r.mb} МБ из ${r.budget} МБ · активно ${r.live} из ${r.total}`;inf.textContent=`Всего ОЗУ в компьютере: ${r.totalMB} МБ`;bar.firstChild.style.width=Math.min(100,r.mb/r.budget*100)+'%'};upd();setTimeout(function f(){if(!m.isConnected)return;upd();setTimeout(f,3000)},3000);
+ const rv=h('span',{className:'mut',textContent:(S.ram||1500)+' МБ'});
  return[h('h3',{},'Производительность'),card(
-  row('Сейчас использует',h('div',{style:'text-align:right'},m,bar)),
-  row('Лимит ОЗУ',h('div',{style:'display:flex;gap:10px;align-items:center'},range(200,700,50,S.ram,v=>{rv.textContent=v+' МБ';set({ram:v})}),rv),'При превышении неактивные вкладки засыпают. Лимит кучи JS применяется после перезапуска'),
-  row('Усыплять вкладки через',(()=>{const s=h('select',{},[[0,'Никогда'],[5,'5 мин'],[10,'10 мин'],[30,'30 мин'],[60,'1 час']].map(([v,l])=>h('option',{value:v,textContent:l})));s.value=S.sleepMin;s.onchange=()=>set({sleepMin:+s.value});return s})(),'Уснувшая вкладка остаётся в панели и загружается заново по клику'),
+  row('Сейчас использует',h('div',{style:'text-align:right'},m,bar,inf)),
+  row('Подбирать лимит автоматически',tog(S.ram<=0,v=>{set({ram:v?0:1500});draw()}),'40% ОЗУ компьютера, но не больше 3000 МБ'),
+  S.ram>0?row('Лимит ОЗУ',h('div',{style:'display:flex;gap:10px;align-items:center'},range(800,3000,100,S.ram,v=>{rv.textContent=v+' МБ';set({ram:v})}),rv),'Жёсткий потолок 3000 МБ. Применяется после перезапуска'):'',
+  row('Усыплять забытые вкладки через',(()=>{const s=h('select',{},[[0,'Никогда'],[15,'15 мин'],[30,'30 мин'],[60,'1 час'],[120,'2 часа']].map(([v,l])=>h('option',{value:v,textContent:l})));s.value=S.sleepMin;s.onchange=()=>set({sleepMin:+s.value});return s})(),'Вкладки со звуком, видео, загрузкой и открытые сейчас не засыпают никогда. Уснувшая вкладка возвращается с того же места'),
   row('Лёгкий режим',tog(S.lite,v=>set({lite:v})),'Без размытия стекла: меньше нагрузка на слабой видеокарте'))]},
 profiles(){const n=h('input',{type:'text',placeholder:'Название профиля'});
  return[h('h3',{},'Профили'),card(S.profiles.map(p=>{const i=h('input',{type:'text',value:p.name});i.onchange=()=>ks.send('profile:rename',p.id,i.value);
@@ -92,6 +93,13 @@ downloads(){const list=h('div',{});const dr=()=>{list.textContent='';dls.forEach
   row('Спрашивать, куда сохранять',tog(S.askDownload,v=>set({askDownload:v})))),h('h3',{},'Недавние'),card(list)]},
 search(){const s=h('select',{},[['google','Google'],['bing','Bing'],['ddg','DuckDuckGo'],['yandex','Яндекс'],['brave','Brave']].map(([v,l])=>h('option',{value:v,textContent:l})));s.value=S.engine;s.onchange=()=>set({engine:s.value});
  return[h('h3',{},'Поиск'),card(row('Поисковая система в адресной строке',s,'На главной странице K-search можно выбрать любую и раздел: картинки, видео, новости, карты'))]},
+voice(){const box=card();const mk=(n,l,sub)=>{const i=h('input',{type:'text',placeholder:'вставьте ключ',style:'min-width:200px'}),st=h('span',{className:'mut'}),b=h('button',{className:'p',textContent:'Сохранить'});
+  const chk=()=>ks.invoke('keys:has').then(k=>st.textContent=k[n]?'сохранён ✓':'не задан');chk();
+  b.onclick=async()=>{const ok=await ks.invoke('keys:set',n,i.value);i.value='';if(!ok)st.textContent='не удалось сохранить';else chk()};
+  return row(l,h('div',{style:'display:flex;gap:8px;align-items:center'},i,b,st),sub)};
+ box.append(mk('groq','Ключ Groq (голосовой запрос)','Бесплатный ключ на console.groq.com. Речь превращается в текст и сразу уходит в поиск'),
+  mk('audd','Токен AudD (что играет)','Ключ на audd.io. Распознаёт песню по 7 секундам звука'));
+ return[h('h3',{},'Голос и музыка'),box,h('p',{className:'mut',style:'max-width:640px'},'Ключи шифруются средствами Windows и хранятся только на этом компьютере. Звук отправляется выбранному сервису только когда вы нажимаете на микрофон на главной странице.')]},
 def(){return[h('h3',{},'Браузер по умолчанию'),card(
   row('Открывать ссылки, PDF и картинки в K-search',h('button',{className:'p',textContent:'Открыть параметры Windows',onclick:()=>ks.send('sys:defaults')}),'Работает после установки через K-search-Setup.exe. В Windows выберите K-search в списке приложений и назначьте для HTTP, HTTPS, PDF, HTML'))]}
 };

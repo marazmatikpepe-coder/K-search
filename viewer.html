@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"><title>Файл</title>
+<link rel="stylesheet" href="glass.css">
+<style>
+body{display:flex;flex-direction:column;overflow:hidden}
+header{display:flex;align-items:center;gap:12px;padding:12px 18px;flex:none}
+header b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}header span{color:var(--fg2)}
+button{font:inherit;color:var(--fg);background:rgba(var(--tint),.18);border:0;border-radius:12px;padding:7px 14px;cursor:pointer}button.p{background:var(--c1);color:#fff}button:hover{filter:brightness(1.15)}
+pre{flex:1;overflow:auto;margin:0 12px 12px;padding:16px 18px;border-radius:calc(var(--r) + 4px);font:13px/1.55 Consolas,"Cascadia Mono",monospace;white-space:pre-wrap;word-break:break-word;-webkit-user-select:text;user-select:text}
+.box{margin:auto;text-align:center;padding:34px 40px;border-radius:calc(var(--r) + 14px);max-width:440px}
+.box img{width:64px;margin-bottom:12px}.box h2{font-size:19px;word-break:break-all}.box p{color:var(--fg2);margin:8px 0 20px}
+.box div{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+</style></head><body>
+<script src="theme.js"></script>
+<script>
+const h=(t,p,...k)=>{const e=document.createElement(t);Object.assign(e,p||{});e.append(...k);return e};
+const sz=n=>n<1024?n+' Б':n<1048576?(n/1024).toFixed(1)+' КБ':(n/1048576).toFixed(1)+' МБ';
+applyTheme(null);ks.on('settings',applyTheme);ks.invoke('settings:get').then(applyTheme);
+const p=decodeURIComponent(location.hash.slice(1));
+ks.invoke('file:info',p).then(f=>{
+ if(!f){document.body.append(h('div',{className:'box glass'},h('h2',{textContent:'Файл не найден'})));return}
+ document.title=f.name;
+ const open=h('button',{className:'p',textContent:'Открыть в программе',onclick:()=>ks.send('file:open',f.path)}),show=h('button',{textContent:'В папке',onclick:()=>ks.send('file:show',f.path)});
+ if(f.text!==null){
+  const copy=h('button',{textContent:'Копировать',onclick:()=>{navigator.clipboard.writeText(f.text).catch(()=>{});copy.textContent='Скопировано'}});
+  document.body.append(h('header',{className:'glass',style:'margin:12px;border-radius:18px'},h('b',{textContent:f.name}),h('span',{textContent:sz(f.size)}),copy,show,open),h('pre',{className:'glass',textContent:f.text}))
+ }else document.body.append(h('div',{className:'box glass'},h('img',{src:'logo.png'}),h('h2',{textContent:f.name}),
+  h('p',{textContent:`${f.ext?f.ext.toUpperCase()+' · ':''}${sz(f.size)}. Браузер не умеет показывать этот тип, но файл можно открыть в подходящей программе.`}),h('div',{},open,show)))
+});
+</script></body></html>
